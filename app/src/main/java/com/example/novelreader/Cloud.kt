@@ -101,15 +101,15 @@ object Cloud {
 
                 // --- загрузить в облако наше ---
                 val remoteRev = remote.documents.associate { it.id to (it.getLong("rev") ?: 0L) }
-                for (n in st.novels.toList()) {
-                    val rr = remoteRev[n.id]
-                    val doc = root.collection("novels").document(n.id)
+                for ((id, title, tab, cover, color, rev) in st.novels.toList()) {
+                    val rr = remoteRev[id]
+                    val doc = root.collection("novels").document(id)
                     var cv: String? = null
-                    if (rr == null || n.rev > rr) {
+                    if (rr == null || rev > rr) {
                         val col = doc.collection("chapters")
                         clearChapters(col)
                         // картинки манги не загружаем, длинные главы режем на куски
-                        val pieces = st.chapters(n.id)
+                        val pieces = st.chapters(id)
                             .filter { !it.text.startsWith("IMG\n") }
                             .flatMap { c ->
                                 c.text.chunked(300000).ifEmpty { listOf("") }
@@ -122,10 +122,10 @@ object Cloud {
                             }
                             wb.commit().await()
                         }
-                        cv = n.cover?.let { File(it) }?.takeIf { it.exists() && it.length() < 600_000 }
+                        cv = cover?.let { File(it) }?.takeIf { it.exists() && it.length() < 600_000 }
                             ?.let { Base64.encodeToString(it.readBytes(), Base64.NO_WRAP) }
                     }
-                    val meta = mutableMapOf<String, Any>("title" to n.title, "tab" to n.tab, "color" to n.color, "rev" to n.rev)
+                    val meta = mutableMapOf<String, Any>("title" to title, "tab" to tab, "color" to color, "rev" to rev)
                     if (cv != null) meta["cover"] = cv
                     doc.set(meta, SetOptions.merge()).await()
                 }
