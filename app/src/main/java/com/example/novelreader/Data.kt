@@ -33,7 +33,10 @@ data class Chapter(val title: String, val text: String)
 data class Site(val name: String, val url: String)
 data class ReaderCfg(
     val font: Int = 0, val size: Float = 18f, val line: Float = 1.4f,
-    val margin: Float = 16f, val spacing: Float = 0f
+    val margin: Float = 16f, val spacing: Float = 0f,
+    val align: Int = 0, val bold: Boolean = false, val bg: Int = 0,
+    val autoSpeed: Float = 60f, val autoNext: Boolean = false, val autoDelay: Float = 2f,
+    val keepOn: Boolean = false
 )
 
 // ---- объединение глав одной серии ----
@@ -79,6 +82,7 @@ class Store(private val ctx: Context) {
         for (i in novels.indices) fix[novels[i].tab]?.let { novels[i] = novels[i].copy(tab = it) }
         if (tabs.isEmpty()) tabs.addAll(listOf("@reading", "@dropped", "@planned"))
         if ("@downloaded" !in tabs) tabs.add("@downloaded")
+        if ("@all" !in tabs) tabs.add(0, "@all")
         if (sites.isEmpty()) sites.addAll(
             listOf(
                 Site("Project Gutenberg", "https://www.gutenberg.org"),
@@ -101,7 +105,10 @@ class Store(private val ctx: Context) {
             o.optJSONObject("cfg")?.let { c ->
                 cfg = ReaderCfg(
                     c.optInt("font", 0), c.optDouble("size", 18.0).toFloat(), c.optDouble("line", 1.4).toFloat(),
-                    c.optDouble("margin", 16.0).toFloat(), c.optDouble("spacing", 0.0).toFloat()
+                    c.optDouble("margin", 16.0).toFloat(), c.optDouble("spacing", 0.0).toFloat(),
+                    c.optInt("align", 0), c.optBoolean("bold", false), c.optInt("bg", 0),
+                    c.optDouble("autoSpeed", 60.0).toFloat(), c.optBoolean("autoNext", false),
+                    c.optDouble("autoDelay", 2.0).toFloat(), c.optBoolean("keepOn", false)
                 )
             }
             val na = o.getJSONArray("novels")
@@ -131,7 +138,9 @@ class Store(private val ctx: Context) {
         o.put(
             "cfg", JSONObject().put("font", cfg.font).put("size", cfg.size.toDouble())
                 .put("line", cfg.line.toDouble()).put("margin", cfg.margin.toDouble())
-                .put("spacing", cfg.spacing.toDouble())
+                .put("spacing", cfg.spacing.toDouble()).put("align", cfg.align).put("bold", cfg.bold)
+                .put("bg", cfg.bg).put("autoSpeed", cfg.autoSpeed.toDouble()).put("autoNext", cfg.autoNext)
+                .put("autoDelay", cfg.autoDelay.toDouble()).put("keepOn", cfg.keepOn)
         )
         val a = JSONArray()
         novels.forEach { n ->
@@ -177,6 +186,26 @@ class Store(private val ctx: Context) {
         List(a.length()) { val o = a.getJSONObject(it); Chapter(o.getString("t"), o.getString("x")) }
     } catch (e: Exception) {
         emptyList()
+    }
+
+    // Добавить скачанные главы в "Скачанные": главы одной серии сливаются в одну запись
+    suspend fun addDownloaded(series: String, ch: List<Chapter>, cover: String? = null) {
+        val key = norm(series)
+        val cv = cover ?: ch.firstOrNull { it.text.startsWith("IMG\n") }?.text?.lines()?.getOrNull(1)
+        val ex = novels.firstOrNull { it.tab == "@downloaded" && norm(it.title) == key }
+        val now = System.currentTimeMillis()
+        if (ex != null) {
+            withContext(Dispatchers.IO) {
+                val old = chapters(ex.id)
+                saveChapters(ex.id, sortChapters(old + ch.filter { c -> old.none { it.title == c.title } }))
+            }
+            update(ex, ex.copy(rev = now, cover = ex.cover ?: cv))
+        } else {
+            val id = UUID.randomUUID().toString()
+            withContext(Dispatchers.IO) { saveChapters(id, ch) }
+            novels.add(Novel(id, series, "@downloaded", cv, coverColors[Random.nextInt(coverColors.size)], now))
+            save()
+        }
     }
 
     // Импорт файла. group = true: главы одной серии сливаются в одну запись.

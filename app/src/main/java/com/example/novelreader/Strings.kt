@@ -57,7 +57,29 @@ object L {
         "th1" to r("Light", "Светлая", "Світла", "Жарық", "Светлая", "Yorugʻ"),
         "th2" to r("Purple", "Фиолетовая", "Фіолетова", "Күлгін", "Фіялетавая", "Binafsha"),
         "th3" to r("Ocean", "Океан", "Океан", "Мұхит", "Акіян", "Okean"),
-        "th4" to r("Sunset", "Закат", "Захід", "Күн батуы", "Захад", "Quyosh botishi")
+        "th4" to r("Sunset", "Закат", "Захід", "Күн батуы", "Захад", "Quyosh botishi"),
+        "all" to r("All", "Все", "Усі", "Барлығы", "Усе", "Hammasi"),
+        "th5" to r("Black", "Чёрная", "Чорна", "Қара", "Чорная", "Qora"),
+        "autoscroll" to r("Auto-scroll", "Автопрокрутка", "Автопрокручування", "Авто айналдыру", "Аўтапракрутка", "Avto-aylantirish"),
+        "speed" to r("Scroll speed", "Скорость прокрутки", "Швидкість прокручування", "Айналдыру жылдамдығы", "Хуткасць пракруткі", "Aylantirish tezligi"),
+        "auto_next" to r("Auto next chapter", "Автопереход к следующей главе", "Автоперехід до наступного розділу", "Келесі тарауға автоөту", "Аўтапераход да наступнай главы", "Keyingi bobga avto-oʻtish"),
+        "delay" to r("Pause before next chapter (s)", "Пауза перед следующей главой (с)", "Пауза перед наступним розділом (с)", "Келесі тарауға дейінгі үзіліс (с)", "Паўза перад наступнай главой (с)", "Keyingi bobdan oldin pauza (s)"),
+        "align" to r("Alignment", "Выравнивание", "Вирівнювання", "Туралау", "Выраўноўванне", "Tekislash"),
+        "al0" to r("Left", "Слева", "Зліва", "Сол жақ", "Злева", "Chap"),
+        "al1" to r("Center", "По центру", "По центру", "Ортасы", "Па цэнтры", "Markaz"),
+        "al2" to r("Justify", "По ширине", "За шириною", "Ені бойынша", "Па шырыні", "Kengligi boʻyicha"),
+        "bold" to r("Bold text", "Жирный текст", "Жирний текст", "Қою мәтін", "Тоўсты тэкст", "Qalin matn"),
+        "keep_on" to r("Keep screen on", "Не гасить экран", "Не вимикати екран", "Экранды сөндірмеу", "Не гасіць экран", "Ekranni oʻchirmaslik"),
+        "rbg" to r("Reading background", "Фон чтения", "Тло читання", "Оқу фоны", "Фон чытання", "Oʻqish foni"),
+        "paper" to r("Paper", "Бумага", "Папір", "Қағаз", "Папера", "Qogʻoz"),
+        "white" to r("White", "Белый", "Білий", "Ақ", "Белы", "Oq"),
+        "black" to r("Black", "Чёрный", "Чорний", "Қара", "Чорны", "Qora"),
+        "chapters" to r("Chapters", "Главы", "Розділи", "Тараулар", "Главы", "Boblar"),
+        "download_all" to r("Download all", "Скачать все", "Завантажити всі", "Барлығын жүктеу", "Спампаваць усе", "Hammasini yuklab olish"),
+        "download_sel" to r("Download selected", "Скачать выбранные", "Завантажити вибрані", "Таңдалғанды жүктеу", "Спампаваць выбраныя", "Tanlanganlarni yuklab olish"),
+        "select_all" to r("Select all", "Выбрать все", "Вибрати всі", "Барлығын таңдау", "Выбраць усе", "Hammasini tanlash"),
+        "no_chapters" to r("No chapters found on this page", "На этой странице главы не найдены", "На цій сторінці розділи не знайдено", "Бұл бетте тараулар табылмады", "На гэтай старонцы главы не знойдзены", "Bu sahifada boblar topilmadi"),
+        "done" to r("Done", "Готово", "Готово", "Дайын", "Гатова", "Tayyor")
     )
 
     fun t(k: String, lang: Int): String = m[k]?.getOrNull(lang) ?: m[k]?.get(0) ?: k

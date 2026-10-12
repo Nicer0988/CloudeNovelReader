@@ -5,7 +5,6 @@ import android.util.Base64
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import com.example.novelreader.R.string.default_web_client_id
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -25,7 +24,7 @@ object Cloud {
     suspend fun signIn(act: Activity): String? {
         val opt = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(act.getString(default_web_client_id))
+            .setServerClientId(act.getString(R.string.default_web_client_id))
             .build()
         val req = GetCredentialRequest.Builder().addCredentialOption(opt).build()
         val cred = CredentialManager.create(act).getCredential(act, req).credential
@@ -66,12 +65,20 @@ object Cloud {
                     sd.getLong("theme")?.let { st.theme = it.toInt() }
                     sd.getLong("lang")?.let { st.lang = it.toInt() }
                     (sd.get("cfg") as? Map<*, *>)?.let { m ->
-                        st.cfg = ReaderCfg(
-                            (m["font"] as? Number)?.toInt() ?: 0,
-                            (m["size"] as? Number)?.toFloat() ?: 18f,
-                            (m["line"] as? Number)?.toFloat() ?: 1.4f,
-                            (m["margin"] as? Number)?.toFloat() ?: 16f,
-                            (m["spacing"] as? Number)?.toFloat() ?: 0f
+                        val d = st.cfg
+                        st.cfg = d.copy(
+                            font = (m["font"] as? Number)?.toInt() ?: d.font,
+                            size = (m["size"] as? Number)?.toFloat() ?: d.size,
+                            line = (m["line"] as? Number)?.toFloat() ?: d.line,
+                            margin = (m["margin"] as? Number)?.toFloat() ?: d.margin,
+                            spacing = (m["spacing"] as? Number)?.toFloat() ?: d.spacing,
+                            align = (m["align"] as? Number)?.toInt() ?: d.align,
+                            bold = (m["bold"] as? Boolean) ?: d.bold,
+                            bg = (m["bg"] as? Number)?.toInt() ?: d.bg,
+                            autoSpeed = (m["autoSpeed"] as? Number)?.toFloat() ?: d.autoSpeed,
+                            autoNext = (m["autoNext"] as? Boolean) ?: d.autoNext,
+                            autoDelay = (m["autoDelay"] as? Number)?.toFloat() ?: d.autoDelay,
+                            keepOn = (m["keepOn"] as? Boolean) ?: d.keepOn
                         )
                     }
                 }
@@ -136,7 +143,10 @@ object Cloud {
                     mapOf(
                         "tabs" to st.tabs.toList(), "theme" to st.theme, "lang" to st.lang,
                         "cfg" to mapOf("font" to c.font, "size" to c.size.toDouble(), "line" to c.line.toDouble(),
-                            "margin" to c.margin.toDouble(), "spacing" to c.spacing.toDouble())
+                            "margin" to c.margin.toDouble(), "spacing" to c.spacing.toDouble(),
+                            "align" to c.align, "bold" to c.bold, "bg" to c.bg,
+                            "autoSpeed" to c.autoSpeed.toDouble(), "autoNext" to c.autoNext,
+                            "autoDelay" to c.autoDelay.toDouble(), "keepOn" to c.keepOn)
                     ), SetOptions.merge()
                 ).await()
             }
